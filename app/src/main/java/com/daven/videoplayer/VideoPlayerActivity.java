@@ -61,6 +61,7 @@ public class VideoPlayerActivity extends AppCompatActivity {
         String path = getIntent().getStringExtra("path");
         Log.i(TAG,"PATH="+path);
 
+
         playVideo(path);
     }
 

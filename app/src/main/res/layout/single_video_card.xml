@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/single_video_card"
+    android:layout_gravity="center"
+    android:layout_height="@dimen/single_video_card_height"
+    android:layout_width="@dimen/single_video_card_width"
+    card_view:cardCornerRadius="@dimen/single_video_card_radius"
+    android:layout_marginBottom="5dp">
+
+        <ImageView
+            android:id="@+id/video_icon"
+            android:layout_width="@dimen/single_video_icon_width"
+            android:layout_height="@dimen/single_video_icon_height"/>
+
+        <TextView
+            android:id="@+id/video_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+</android.support.v7.widget.CardView>
