@@ -1,2 +1,2 @@
 # VideoPlayer
-A Video Player developed by Vitamio
+A Video Player developed by using Vitamio
