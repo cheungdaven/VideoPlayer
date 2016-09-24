@@ -3,11 +3,13 @@ package com.daven.videoplayer;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,20 +18,27 @@ import android.widget.TextView;
 
 import com.daven.adapter.LocalVideoAdapter;
 import com.daven.base.Video;
+import com.daven.util.CommonUtil;
+import com.daven.util.VitamioUtil;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
+import io.vov.vitamio.ThumbnailUtils;
+import io.vov.vitamio.Vitamio;
 
 /**
  * A simple {@link Fragment} subclass.
  */
 public class LocalVideoFragment extends Fragment {
-
+    private final static String TAG = "LocalVideoFragment";
     private String mSDRoot = "";
     private RecyclerView mRecylerView;
-    private RecyclerView.Adapter mAdapter;
+    private LocalVideoAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     private Context mContext;
+    private List<Video> mVideos = new ArrayList<Video>();
 
     public LocalVideoFragment() {
         // Required empty public constructor
@@ -47,12 +56,12 @@ public class LocalVideoFragment extends Fragment {
 
         //play button
         Button btn = (Button)view.findViewById(R.id.play_test);
-        final Intent intent = new Intent(mContext, VideoPlayerActivity.class);
-        intent.putExtra("path",path);
+        final Intent i = new Intent(mContext, VideoPlayerActivity.class);
+        i.putExtra("path",path);
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(intent);
+                startActivity(i);
             }
         });
 
@@ -66,8 +75,27 @@ public class LocalVideoFragment extends Fragment {
         mLayoutManager = new LinearLayoutManager(mContext);
         mRecylerView.setLayoutManager(mLayoutManager);
 
+        // scan sd card
+        new ScanVideoTask().execute();
+
+        Log.d(TAG,"mVideos="+mVideos.size());
+
         // specify an adapter
-        mAdapter = new LocalVideoAdapter(mContext, getVideo());
+        final Intent intent = new Intent(mContext, VideoPlayerActivity.class);
+        mAdapter = new LocalVideoAdapter(mContext, mVideos);
+        mAdapter.setOnItemClickListener(new LocalVideoAdapter.ClickListener() {
+            @Override
+            public void onItemClick(int position, View v) {
+                intent.putExtra("path",mVideos.get(position).getPath());
+                mContext.startActivity(intent);
+            }
+
+            @Override
+            public void onItemLongClick(int position, View v) {
+                intent.putExtra("path",mVideos.get(position).getPath());
+                mContext.startActivity(intent);
+            }
+        });
         mRecylerView.setAdapter(mAdapter);
 
         return view;
@@ -79,11 +107,51 @@ public class LocalVideoFragment extends Fragment {
 
         for(int i=0; i < names.length; i++){
             Video v = new Video();
-            v.setmTitle(names[i]);
+            v.setTitle(names[i]);
             vs.add(v);
         }
 
         return vs;
+    }
+
+    //scan local videos
+    private class ScanVideoTask extends AsyncTask<Void,File,Void>{
+
+        @Override
+        protected Void doInBackground(Void...params){
+            findAllVideos(Environment.getExternalStorageDirectory());
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(File...values){
+           //Log.d(TAG,"video="+values[0].getPath());
+            //Log.d(TAG,"video="+mContext.getFilesDir());
+            Video v = new Video();
+            v.setTitle(values[0].getName());
+            v.setPath(values[0].getPath());
+            v.setThumbnailPath(values[1].getPath());
+            Log.d(TAG,"video="+values[1].getPath());
+            mVideos.add(v);
+            //ThumbnailUtils
+            mAdapter.notifyDataSetChanged();
+        }
+
+        public void findAllVideos(File f){
+            if(f != null && f.exists() && f.isDirectory()){
+                File[] files = f.listFiles();
+                if(files != null){
+                    for(File file: files){
+                        if(file.isDirectory()){
+                            findAllVideos(file);
+                        }else if(file.exists() && file.canRead() && CommonUtil.isVideo(file)){
+                            //use this method to cause onProgressUpdate to be notified
+                            publishProgress(file, VitamioUtil.createThumbnails(mContext,file));
+                        }
+                    }
+                }
+            }
+        }
     }
 
 }

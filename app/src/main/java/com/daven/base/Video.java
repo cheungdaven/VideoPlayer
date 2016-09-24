@@ -6,37 +6,37 @@ import android.widget.ImageView;
  * Created by Daven on 24/09/2016.
  */
 public class Video {
-    public String getmTitle() {
+    public String getTitle() {
         return mTitle;
     }
 
-    public void setmTitle(String mTitle) {
+    public void setTitle(String mTitle) {
         this.mTitle = mTitle;
     }
 
     public String mTitle;
 
-    public ImageView getmImageView() {
+    public ImageView getImageView() {
         return mImageView;
     }
 
-    public void setmImageView(ImageView mImageView) {
+    public void setImageView(ImageView mImageView) {
         this.mImageView = mImageView;
     }
 
-    public int getmSize() {
+    public int getSize() {
         return mSize;
     }
 
-    public void setmSize(int mSize) {
+    public void setSize(int mSize) {
         this.mSize = mSize;
     }
 
-    public int getmTime() {
+    public int getTime() {
         return mTime;
     }
 
-    public void setmTime(int mTime) {
+    public void setTime(int mTime) {
         this.mTime = mTime;
     }
 
@@ -52,6 +52,26 @@ public class Video {
     public int mSize;
     public int mTime;
     public String description;
+
+    public String getPath() {
+        return mPath;
+    }
+
+    public void setPath(String mPath) {
+        this.mPath = mPath;
+    }
+
+    public String mPath;
+
+    public String getThumbnailPath() {
+        return mThumbnailPath;
+    }
+
+    public void setThumbnailPath(String mThumbnailPath) {
+        this.mThumbnailPath = mThumbnailPath;
+    }
+
+    public String mThumbnailPath;
 
 
 }
