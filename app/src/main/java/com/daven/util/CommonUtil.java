@@ -1,9 +1,12 @@
 package com.daven.util;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.view.Window;
+import android.view.WindowManager;
 
 import java.io.File;
 
@@ -68,6 +71,8 @@ public class CommonUtil {
 
         return mp;
     }
+
+
 
 
 }

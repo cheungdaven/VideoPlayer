@@ -1,43 +1,52 @@
 package com.daven.base;
 
-import android.widget.ImageView;
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
 
 /**
  * Created by Daven on 24/09/2016.
  */
+
+@DatabaseTable(tableName="tb_video")
 public class Video {
+
+    @DatabaseField(generatedId = true)
+    private int id;
+    @DatabaseField(columnName = "title")
+    private String title;
+    @DatabaseField(columnName = "size")
+    private int size;
+    @DatabaseField(columnName = "time")
+    private int time;
+    @DatabaseField(columnName = "description")
+    private String description;
+    @DatabaseField(columnName = "thumbnailPath")
+    private String thumbnailPath;
+    @DatabaseField(columnName = "path")
+    private String path;
+
     public String getTitle() {
-        return mTitle;
+        return title;
     }
 
-    public void setTitle(String mTitle) {
-        this.mTitle = mTitle;
-    }
-
-    public String mTitle;
-
-    public ImageView getImageView() {
-        return mImageView;
-    }
-
-    public void setImageView(ImageView mImageView) {
-        this.mImageView = mImageView;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public int getSize() {
-        return mSize;
+        return size;
     }
 
-    public void setSize(int mSize) {
-        this.mSize = mSize;
+    public void setSize(int size) {
+        this.size = size;
     }
 
     public int getTime() {
-        return mTime;
+        return time;
     }
 
-    public void setTime(int mTime) {
-        this.mTime = mTime;
+    public void setTime(int time) {
+        this.time = time;
     }
 
     public String getDescription() {
@@ -48,30 +57,29 @@ public class Video {
         this.description = description;
     }
 
-    public ImageView mImageView;
-    public int mSize;
-    public int mTime;
-    public String description;
-
     public String getPath() {
-        return mPath;
+        return path;
     }
 
-    public void setPath(String mPath) {
-        this.mPath = mPath;
+    public void setPath(String path) {
+        this.path = path;
     }
-
-    public String mPath;
 
     public String getThumbnailPath() {
-        return mThumbnailPath;
+        return thumbnailPath;
     }
 
-    public void setThumbnailPath(String mThumbnailPath) {
-        this.mThumbnailPath = mThumbnailPath;
+    public void setThumbnailPath(String thumbnailPath) {
+        this.thumbnailPath = thumbnailPath;
     }
 
-    public String mThumbnailPath;
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
 
 
 }

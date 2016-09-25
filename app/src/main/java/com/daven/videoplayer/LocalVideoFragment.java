@@ -3,6 +3,7 @@ package com.daven.videoplayer;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
@@ -17,7 +18,9 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.daven.adapter.LocalVideoAdapter;
+import com.daven.base.Constant;
 import com.daven.base.Video;
+import com.daven.db.VideoDao;
 import com.daven.util.CommonUtil;
 import com.daven.util.VitamioUtil;
 
@@ -39,6 +42,8 @@ public class LocalVideoFragment extends Fragment {
     private RecyclerView.LayoutManager mLayoutManager;
     private Context mContext;
     private List<Video> mVideos = new ArrayList<Video>();
+    private VideoDao mVideoDao;
+    private SharedPreferences mPrefrence ;
 
     public LocalVideoFragment() {
         // Required empty public constructor
@@ -49,21 +54,10 @@ public class LocalVideoFragment extends Fragment {
                              Bundle savedInstanceState) {
         mContext = getContext();
         View view = inflater.inflate(R.layout.local_videos, container, false);
+        mVideoDao = new VideoDao(mContext);
 
         //get video path
         mSDRoot = Environment.getExternalStorageDirectory().getPath();
-        String path = mSDRoot + "/EP29.mp4";
-
-        //play button
-        Button btn = (Button)view.findViewById(R.id.play_test);
-        final Intent i = new Intent(mContext, VideoPlayerActivity.class);
-        i.putExtra("path",path);
-        btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(i);
-            }
-        });
 
         //Setting RecyclerView
         mRecylerView = (RecyclerView) view.findViewById(R.id.local_video_list);
@@ -76,13 +70,27 @@ public class LocalVideoFragment extends Fragment {
         mRecylerView.setLayoutManager(mLayoutManager);
 
         // scan sd card
-        new ScanVideoTask().execute();
+        //first time or not
+        mPrefrence = mContext.getSharedPreferences(Constant.FIRST_TIME, Context.MODE_PRIVATE);
+
+        Log.d(TAG,"mPrefrence。。="+mPrefrence.getBoolean(Constant.FIRST_TIME_LABEL,false));
+        if (mPrefrence != null) {
+            if( mPrefrence.getBoolean(Constant.FIRST_TIME_LABEL,false)){
+
+                Log.d(TAG,"mPrefrence="+mPrefrence.getBoolean(Constant.FIRST_TIME_LABEL,false));
+
+                new ScanVideoTask().execute();
+                mPrefrence.edit().putBoolean(Constant.FIRST_TIME_LABEL,false).commit();
+            }
+        }
+
+        mVideos = mVideoDao.getAllVideos();
 
         Log.d(TAG,"mVideos="+mVideos.size());
 
         // specify an adapter
         final Intent intent = new Intent(mContext, VideoPlayerActivity.class);
-        mAdapter = new LocalVideoAdapter(mContext, mVideos);
+        mAdapter = new LocalVideoAdapter(mContext, mVideoDao);
         mAdapter.setOnItemClickListener(new LocalVideoAdapter.ClickListener() {
             @Override
             public void onItemClick(int position, View v) {
@@ -101,19 +109,6 @@ public class LocalVideoFragment extends Fragment {
         return view;
     }
 
-    public List<Video> getVideo(){
-        List<Video> vs = new ArrayList<Video>();
-        String[] names = { "朱茵", "张柏芝", "张敏", "巩俐", "黄圣依", "赵薇", "莫文蔚", "如花" };
-
-        for(int i=0; i < names.length; i++){
-            Video v = new Video();
-            v.setTitle(names[i]);
-            vs.add(v);
-        }
-
-        return vs;
-    }
-
     //scan local videos
     private class ScanVideoTask extends AsyncTask<Void,File,Void>{
 
@@ -128,12 +123,16 @@ public class LocalVideoFragment extends Fragment {
            //Log.d(TAG,"video="+values[0].getPath());
             //Log.d(TAG,"video="+mContext.getFilesDir());
             Video v = new Video();
-            v.setTitle(values[0].getName());
-            v.setPath(values[0].getPath());
+            v.setTitle(values[0].getName());//name of video
+            v.setPath(values[0].getPath());//path of video
+            //Log.d(TAG,"video size="+(((int)values[0].length())/1024));
+            v.setSize(((int)values[0].length())/(1024*1024));//size of video
+
             v.setThumbnailPath(values[1].getPath());
-            Log.d(TAG,"video="+values[1].getPath());
-            mVideos.add(v);
-            //ThumbnailUtils
+            //Log.d(TAG,"video="+values[1].getPath());
+
+            mVideoDao.add(v);
+
             mAdapter.notifyDataSetChanged();
         }
 

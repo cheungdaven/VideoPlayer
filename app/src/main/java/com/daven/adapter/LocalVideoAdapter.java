@@ -3,6 +3,7 @@ package com.daven.adapter;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.daven.base.Video;
+import com.daven.db.VideoDao;
 import com.daven.util.CommonUtil;
 import com.daven.videoplayer.R;
 import com.daven.videoplayer.VideoPlayerActivity;
@@ -20,14 +22,14 @@ import java.util.List;
  * Created by Daven on 24/09/2016.
  */
 public class LocalVideoAdapter extends RecyclerView.Adapter<LocalVideoAdapter.ViewHolder> {
-
-    private List<Video> mVideos;
+    private static final String TAG = "LocalVideoAdapter";
+    private VideoDao mVideoDao;
     private Context mContext;
     private View mCardView;
 
-    public LocalVideoAdapter(Context context, List<Video> videos){
+    public LocalVideoAdapter(Context context, VideoDao videoDao){
         mContext = context;
-        mVideos = videos;
+        mVideoDao = videoDao;
     }
 
     @Override
@@ -38,14 +40,16 @@ public class LocalVideoAdapter extends RecyclerView.Adapter<LocalVideoAdapter.Vi
 
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, int i){
-        Video v = mVideos.get(i);
-        viewHolder.mTextView.setText(v.mTitle);
+        Log.d(TAG,"i="+i);
+        Video v = mVideoDao.getVideoById(i+1);
+        viewHolder.mTextView.setText(v.getTitle());
         viewHolder.mImageView.setImageBitmap(CommonUtil.getBitmapFromPath(v.getThumbnailPath()));
+        viewHolder.mVideoSize.setText(v.getSize()+" MB");
     }
 
     @Override
     public int getItemCount(){
-        return mVideos == null ? 0 : mVideos.size();
+        return mVideoDao == null ? 0 : mVideoDao.getCount();
     }
 
 
@@ -53,12 +57,14 @@ public class LocalVideoAdapter extends RecyclerView.Adapter<LocalVideoAdapter.Vi
         implements View.OnClickListener, View.OnLongClickListener{
         public TextView mTextView;
         public ImageView mImageView;
+        public TextView mVideoSize;
         public ViewHolder(View v){
             super(v);
             v.setOnClickListener(this);
             v.setOnLongClickListener(this);
             mTextView = (TextView)v.findViewById(R.id.video_title);
             mImageView = (ImageView)v.findViewById(R.id.video_icon);
+            mVideoSize = (TextView)v.findViewById(R.id.video_size);
         }
 
         @Override
