@@ -1,0 +1,51 @@
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    android:scrollbars="none">
+<RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.daven.videoplayer.TVFragment">
+
+    <!-- TODO: Update blank fragment layout -->
+    <android.support.v4.view.ViewPager
+        android:id="@+id/online_videos_tv"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/online_video_jingxuan_height">
+
+    </android.support.v4.view.ViewPager>
+
+    <LinearLayout
+        android:id="@+id/viewpager_tag_viewgroup"
+        android:layout_alignBottom="@id/online_videos_tv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="15dp"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal" >
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/online_videos_tv"
+        android:id="@+id/label_tv"
+        android:layout_marginLeft="10dp"
+        android:layout_marginBottom="5dp"
+        android:layout_marginTop="15dp"
+        android:text="全部电视剧"/>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/online_video_tv_all"
+        android:layout_below="@id/label_tv"
+        android:scrollbars="none"
+        android:gravity="center_horizontal"
+        android:layout_width="match_parent"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_height="wrap_content" />
+
+    </RelativeLayout>
+</ScrollView>

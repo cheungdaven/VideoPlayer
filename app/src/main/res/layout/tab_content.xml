@@ -3,12 +3,20 @@
     android:orientation="vertical"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:background="@color/cardview_light_background"
     android:gravity="center">
+
+    <ImageView
+        android:layout_width="30dp"
+        android:layout_marginTop="2dp"
+        android:layout_height="30dp"
+        android:id="@+id/tab_icon"/>
 
     <TextView
         android:id="@+id/tab_text"
+        android:layout_marginTop="3dp"
         android:layout_width="wrap_content"
-        android:layout_height="@dimen/tab_content_height"
-        android:textColor="@android:color/black"
-        />
+        android:layout_height="wrap_content"
+        android:textStyle="bold"/>
+
 </LinearLayout>

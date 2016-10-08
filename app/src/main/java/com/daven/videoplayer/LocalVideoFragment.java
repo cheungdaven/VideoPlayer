@@ -7,7 +7,11 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Message;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -34,7 +38,7 @@ import io.vov.vitamio.Vitamio;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class LocalVideoFragment extends Fragment {
+public class LocalVideoFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
     private final static String TAG = "LocalVideoFragment";
     private String mSDRoot = "";
     private RecyclerView mRecylerView;
@@ -44,18 +48,52 @@ public class LocalVideoFragment extends Fragment {
     private List<Video> mVideos = new ArrayList<Video>();
     private VideoDao mVideoDao;
     private SharedPreferences mPrefrence ;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
+    private View view;
+    private Handler mCheckMsgHandler;
+    private HandlerThread mCheckMsgThread;
+    private final static int UPDATE = 1;
+    //与UI线程管理的handler
+    private Handler mHandler = new Handler();
 
     public LocalVideoFragment() {
         // Required empty public constructor
+    }
+
+    private void initHandlerThread(){
+        mCheckMsgThread = new HandlerThread("update");
+        mCheckMsgThread.start();
+        mCheckMsgHandler = new Handler(mCheckMsgThread.getLooper()){
+
+            @Override
+            public void handleMessage(Message msg){
+                switch (msg.what){
+                    case UPDATE:
+                        mHandler.postDelayed(
+                                new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        mSwipeRefreshLayout.setRefreshing(false);
+                                    }
+                                }
+                        ,2000);
+                }
+            }
+        };
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         mContext = getContext();
-        View view = inflater.inflate(R.layout.local_videos, container, false);
+        if(view == null){
+            view = inflater.inflate(R.layout.local_videos, container, false);
+        }
+        initHandlerThread();
         mVideoDao = new VideoDao(mContext);
-
+        mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.id_swipe_local);
+        mSwipeRefreshLayout.setOnRefreshListener(this);
         //get video path
         mSDRoot = Environment.getExternalStorageDirectory().getPath();
 
@@ -108,6 +146,44 @@ public class LocalVideoFragment extends Fragment {
 
         return view;
     }
+
+    @Override
+    public void onRefresh() {
+        Log.d(TAG,"onRefresh");
+        mCheckMsgHandler.sendEmptyMessage(UPDATE);
+    }
+
+    @Override
+    public void onPause(){
+        super.onPause();
+
+    }
+
+    @Override
+    public void onDestroy() {
+        // TODO Auto-generated method stub
+        super.onDestroy();
+        Log.d(TAG,"onDestroy");
+    }
+
+    @Override
+    public void onStop() {
+        // TODO Auto-generated method stub
+        super.onStop();
+        Log.d(TAG,"onStop");
+
+        mCheckMsgHandler.removeMessages(UPDATE);
+        /**
+         * if i change to another fragment, the old fragment is still here and on top of the new one
+         * below code solve this problem
+         */
+        if (mSwipeRefreshLayout!=null) {
+            mSwipeRefreshLayout.setRefreshing(false);
+            mSwipeRefreshLayout.destroyDrawingCache();
+            mSwipeRefreshLayout.clearAnimation();
+        }
+    }
+
 
     //scan local videos
     private class ScanVideoTask extends AsyncTask<Void,File,Void>{

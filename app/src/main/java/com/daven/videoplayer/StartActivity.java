@@ -46,7 +46,7 @@ public class StartActivity extends AppCompatActivity {
     }
 
     private void redirectTo(){
-        Intent intent = new Intent(this, EntryActivity.class);
+        Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
         finish();
     }

@@ -13,19 +13,26 @@
         android:theme="@style/AppTheme">
         <activity android:name=".StartActivity">
             <intent-filter>
+
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".EntryActivity"></activity>
-        <activity android:name=".VideoPlayerActivity"></activity>
+        <activity android:name=".VideoPlayerActivity" />
         <activity
             android:name="io.vov.vitamio.activity.InitActivity"
             android:configChanges="orientation|screenSize|smallestScreenSize|keyboard|keyboardHidden|navigation"
             android:launchMode="singleTop"
             android:theme="@android:style/Theme.NoTitleBar"
             android:windowSoftInputMode="stateAlwaysHidden" />
+        <activity
+            android:name=".MainActivity"
+            android:label="@string/title_activity_main"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".WebViewActivity">
+
+        </activity>
     </application>
 
 </manifest>

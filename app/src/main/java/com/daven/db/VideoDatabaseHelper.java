@@ -49,8 +49,8 @@ public class VideoDatabaseHelper extends OrmLiteSqliteOpenHelper {
     public static synchronized VideoDatabaseHelper getInstance(Context context){
         context = context.getApplicationContext();//avoid memory leak
 
-        if (instance == null) {
-            synchronized (VideoDatabaseHelper.class) {
+        if (instance == null) {//防止多次创建同步锁
+            synchronized (VideoDatabaseHelper.class) {//创建同步锁
                 if (instance == null)
                     instance = new VideoDatabaseHelper(context);
             }

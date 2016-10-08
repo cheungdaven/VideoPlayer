@@ -22,6 +22,8 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Rect;
+import android.util.Log;
+
 import io.vov.vitamio.provider.MediaStore.Video;
 
 /**
@@ -43,6 +45,7 @@ public class ThumbnailUtils {
   
 
   public static Bitmap createVideoThumbnail(Context ctx, String filePath, int kind) {
+    Log.d("batchBuildThumbnail","initial"+(!Vitamio.isInitialized(ctx)));
     if (!Vitamio.isInitialized(ctx)) {
       return null;
     }
