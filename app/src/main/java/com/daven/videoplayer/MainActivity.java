@@ -2,6 +2,7 @@ package com.daven.videoplayer;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
@@ -27,8 +28,10 @@ import android.widget.TabHost;
 import android.widget.TextView;
 
 import com.daven.base.Constant;
+import com.daven.util.CommonUtil;
 import com.daven.util.SystemBarTintManager;
 import com.daven.util.VitamioUtil;
+import com.daven.widget.RoundImageView;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -40,23 +43,18 @@ public class MainActivity extends AppCompatActivity
     private Class mFragmentArray[] = {LocalVideoFragment.class,OnlineVideoFragment.class};
     private SharedPreferences mPrefrence ;
     private FragmentManager mFragmentManager;
+    private Context mContext;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            //状态栏透明 需要在创建SystemBarTintManager 之前调用。
-            setTranslucentStatus(true);
-        }
 
-        SystemBarTintManager tintManager = new SystemBarTintManager(this);
-        tintManager.setStatusBarTintEnabled(true);
-        //使StatusBarTintView 和 actionbar的颜色保持一致，风格统一。
-        tintManager.setStatusBarTintResource(R.color.actionbar_bg);
-        // 设置状态栏的文字颜色
-        tintManager.setStatusBarDarkMode(false, this);
+        //设置沉浸式状态栏
+        CommonUtil.setImmersiveStatusBar(this,R.color.actionbar_bg);
 
         setContentView(R.layout.activity_main);
+
+        mContext = getApplicationContext();
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -77,6 +75,15 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+        View headerLayout = navigationView.inflateHeaderView(R.layout.nav_header_main);
+        RoundImageView v = (RoundImageView)headerLayout.findViewById(R.id.about_imageView);
+        Log.d(TAG,"v="+v);
+        v.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MainActivity.this.startActivity(new Intent(mContext,AboutActivity.class));
+            }
+        });
 
         VitamioUtil.checkVitamioLib(this);
         //first time or not
@@ -179,16 +186,4 @@ public class MainActivity extends AppCompatActivity
         return view;
     }
 
-    @TargetApi(19)
-    protected void setTranslucentStatus(boolean on) {
-        Window win = getWindow();
-        WindowManager.LayoutParams winParams = win.getAttributes();
-        final int bits = WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS;
-        if (on) {
-            winParams.flags |= bits;
-        } else {
-            winParams.flags &= ~bits;
-        }
-        win.setAttributes(winParams);
-    }
 }

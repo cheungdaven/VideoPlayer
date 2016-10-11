@@ -50,4 +50,16 @@ public class OnlineViewPageAdapter extends PagerAdapter {
         });
         return imageViews[position];
     }
+
+    //Click listener for RecyclerView Item
+    public interface ClickListener{
+        void onItemClick(int position, View v);
+        void onItemLongClick(int position, View v);
+    }
+
+    private static ClickListener mClickListener;
+
+    public void setOnItemClickListener(ClickListener clickListener){
+        mClickListener = clickListener;
+    }
 }

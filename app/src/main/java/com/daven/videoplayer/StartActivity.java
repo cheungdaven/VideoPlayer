@@ -9,18 +9,14 @@ import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 
+import com.daven.util.CommonUtil;
+
 public class StartActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        if (getSupportActionBar() != null){
-            getSupportActionBar().hide();
-        }
-
+        CommonUtil.setFullScreen(this);
         View view = View.inflate(this,R.layout.activity_start,null);
         setContentView(view);
         AlphaAnimation aa = new AlphaAnimation(0.5f,1.0f);

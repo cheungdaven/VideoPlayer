@@ -8,8 +8,8 @@
     <com.daven.widget.RoundImageView
         android:id="@+id/logo"
         android:layout_centerHorizontal="true"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
         widget:Type="circle"
         android:src="@mipmap/video"
         android:layout_marginTop="160dp"

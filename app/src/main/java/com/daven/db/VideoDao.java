@@ -44,6 +44,16 @@ public class VideoDao {
         }
     }
 
+    public void deleteAll(){
+        try{
+            //删除数据库，并且让id从1开始递增
+            videoDaoOperation.queryRaw("DELETE FROM 'tb_video'");
+            videoDaoOperation.queryRaw("UPDATE sqlite_sequence SET seq = 0 WHERE name = 'tb_video'");
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
+    }
+
     public List<Video> getAllVideos(){
         List<Video> videos = new ArrayList<Video>();
         try{

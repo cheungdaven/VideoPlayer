@@ -13,7 +13,7 @@
     android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
     <com.daven.widget.RoundImageView
-        android:id="@+id/imageView"
+        android:id="@+id/about_imageView"
         android:layout_width="60dp"
         android:layout_height="60dp"
         widget:Type="circle"

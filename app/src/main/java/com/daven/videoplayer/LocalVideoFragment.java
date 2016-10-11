@@ -46,7 +46,7 @@ public class LocalVideoFragment extends Fragment implements SwipeRefreshLayout.O
     private RecyclerView.LayoutManager mLayoutManager;
     private Context mContext;
     private List<Video> mVideos = new ArrayList<Video>();
-    private VideoDao mVideoDao;
+    private static VideoDao mVideoDao;
     private SharedPreferences mPrefrence ;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private View view;
@@ -55,6 +55,8 @@ public class LocalVideoFragment extends Fragment implements SwipeRefreshLayout.O
     private final static int UPDATE = 1;
     //与UI线程管理的handler
     private Handler mHandler = new Handler();
+    private ScanVideoTask mScanVideoTask;
+    private boolean isRefreshing;
 
     public LocalVideoFragment() {
         // Required empty public constructor
@@ -73,7 +75,7 @@ public class LocalVideoFragment extends Fragment implements SwipeRefreshLayout.O
                                 new Runnable() {
                                     @Override
                                     public void run() {
-                                        mSwipeRefreshLayout.setRefreshing(false);
+                                       // mSwipeRefreshLayout.setRefreshing(false);
                                     }
                                 }
                         ,2000);
@@ -109,23 +111,32 @@ public class LocalVideoFragment extends Fragment implements SwipeRefreshLayout.O
 
         // scan sd card
         //first time or not
-        mPrefrence = mContext.getSharedPreferences(Constant.FIRST_TIME, Context.MODE_PRIVATE);
+        findVideo();
 
+        createAdapter();
+        mRecylerView.setAdapter(mAdapter);
+        return view;
+    }
+
+    public void findVideo(){
+        mPrefrence = mContext.getSharedPreferences(Constant.FIRST_TIME, Context.MODE_PRIVATE);
+        mScanVideoTask = new ScanVideoTask();
         Log.d(TAG,"mPrefrence。。="+mPrefrence.getBoolean(Constant.FIRST_TIME_LABEL,false));
         if (mPrefrence != null) {
             if( mPrefrence.getBoolean(Constant.FIRST_TIME_LABEL,false)){
-
                 Log.d(TAG,"mPrefrence="+mPrefrence.getBoolean(Constant.FIRST_TIME_LABEL,false));
-
-                new ScanVideoTask().execute();
+                mScanVideoTask.execute();
                 mPrefrence.edit().putBoolean(Constant.FIRST_TIME_LABEL,false).commit();
             }
         }
-
         mVideos = mVideoDao.getAllVideos();
+        mSize = mVideos.size();
+        //Log.d(TAG,"mVideos="+mVideos.size());
+    }
 
-        Log.d(TAG,"mVideos="+mVideos.size());
+    private int mSize;
 
+    public void createAdapter(){
         // specify an adapter
         final Intent intent = new Intent(mContext, VideoPlayerActivity.class);
         mAdapter = new LocalVideoAdapter(mContext, mVideoDao);
@@ -142,15 +153,43 @@ public class LocalVideoFragment extends Fragment implements SwipeRefreshLayout.O
                 mContext.startActivity(intent);
             }
         });
-        mRecylerView.setAdapter(mAdapter);
 
-        return view;
+    }
+
+    public void deleteVideo(){
+        mVideoDao.deleteAll();
+        File f = mContext.getExternalCacheDir();
+        if(f.isDirectory()){
+            File[] childf = f.listFiles();
+            for(int i=0; i<childf.length;i++){
+                childf[i].delete();
+            }
+        }
     }
 
     @Override
     public void onRefresh() {
         Log.d(TAG,"onRefresh");
         mCheckMsgHandler.sendEmptyMessage(UPDATE);
+        AsyncTask.Status status = mScanVideoTask.getStatus();
+        Log.d(TAG,"AsyncTask.Status:"+status.toString());
+
+        if((status == AsyncTask.Status.FINISHED
+                || status == AsyncTask.Status.PENDING)
+                && !isRefreshing){
+            isRefreshing = true;
+            mRecylerView.removeAllViews();
+            ScanVideoTask task = new ScanVideoTask();
+            task.execute();
+            //mAdapter = new LocalVideoAdapter(mContext,mVideoDao);
+            //mRecylerView.swapAdapter(mAdapter,true);
+           // Log.d(TAG,"onrefresh inner");
+        } else {
+            //doing nothing
+            mSwipeRefreshLayout.setRefreshing(false);
+            isRefreshing = false;
+        }
+
     }
 
     @Override
@@ -172,7 +211,7 @@ public class LocalVideoFragment extends Fragment implements SwipeRefreshLayout.O
         super.onStop();
         Log.d(TAG,"onStop");
 
-        mCheckMsgHandler.removeMessages(UPDATE);
+        //mCheckMsgHandler.removeMessages(UPDATE);
         /**
          * if i change to another fragment, the old fragment is still here and on top of the new one
          * below code solve this problem
@@ -190,26 +229,44 @@ public class LocalVideoFragment extends Fragment implements SwipeRefreshLayout.O
 
         @Override
         protected Void doInBackground(Void...params){
+
+            if(isRefreshing){
+                deleteVideo();
+                //createAdapter();
+                //mAdapter.notifyItemRangeRemoved(0,mSize);
+                Log.d(TAG,"onrefresh deleteVideo="+isRefreshing);
+            }
             findAllVideos(Environment.getExternalStorageDirectory());
             return null;
         }
 
         @Override
         protected void onProgressUpdate(File...values){
-           //Log.d(TAG,"video="+values[0].getPath());
+           Log.d(TAG,"video="+values[0].getPath());
             //Log.d(TAG,"video="+mContext.getFilesDir());
+
             Video v = new Video();
             v.setTitle(values[0].getName());//name of video
             v.setPath(values[0].getPath());//path of video
             //Log.d(TAG,"video size="+(((int)values[0].length())/1024));
-            v.setSize(((int)values[0].length())/(1024*1024));//size of video
+            v.setSize(((int)values[0].length()));//size of video
 
             v.setThumbnailPath(values[1].getPath());
-            //Log.d(TAG,"video="+values[1].getPath());
+           // Log.d(TAG,"video="+values[0].getPath());
 
             mVideoDao.add(v);
-
+            Log.d(TAG,"v="+v);
+            //mAdapter.setVideoDao(mVideoDao);
             mAdapter.notifyDataSetChanged();
+        }
+
+        @Override
+        public void onPostExecute(Void param) {
+            if(isRefreshing){
+                mSwipeRefreshLayout.setRefreshing(false);
+                isRefreshing = false;
+                //mRecylerView.setAdapter(mAdapter);
+            }
         }
 
         public void findAllVideos(File f){

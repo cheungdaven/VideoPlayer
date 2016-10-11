@@ -81,5 +81,8 @@ public class Video {
         this.id = id;
     }
 
-
+    @Override
+    public String toString(){
+        return "Id="+getId()+"; Name="+getTitle()+"; Path="+getPath();
+    }
 }

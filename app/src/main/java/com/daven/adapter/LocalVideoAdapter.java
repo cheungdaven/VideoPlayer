@@ -40,11 +40,16 @@ public class LocalVideoAdapter extends RecyclerView.Adapter<LocalVideoAdapter.Vi
 
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, int i){
-        Log.d(TAG,"i="+i);
+        Log.d(TAG,"i="+i+"; videosize="+mVideoDao.getCount());
         Video v = mVideoDao.getVideoById(i+1);
-        viewHolder.mTextView.setText(v.getTitle());
-        viewHolder.mImageView.setImageBitmap(CommonUtil.getBitmapFromPath(v.getThumbnailPath()));
-        viewHolder.mVideoSize.setText(v.getSize()+" MB");
+        List<Video> vs = mVideoDao.getAllVideos();
+
+        Log.d(TAG,"i="+i+" video="+v+vs.get(i)+"; videosize="+mVideoDao.getCount());
+        if(v != null){
+            viewHolder.mTextView.setText(v.getTitle());
+            viewHolder.mImageView.setImageBitmap(CommonUtil.getBitmapFromPath(v.getThumbnailPath()));
+            viewHolder.mVideoSize.setText(CommonUtil.getVideoSize(v.getSize()));
+        }
     }
 
     @Override
@@ -90,6 +95,5 @@ public class LocalVideoAdapter extends RecyclerView.Adapter<LocalVideoAdapter.Vi
     public void setOnItemClickListener(ClickListener clickListener){
         mClickListener = clickListener;
     }
-
 
 }

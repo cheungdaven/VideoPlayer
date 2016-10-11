@@ -22,7 +22,6 @@ import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
 
 import com.daven.base.Constant;
 
-
 /**
  * A simple {@link Fragment} subclass.
  */
@@ -86,7 +85,19 @@ public class TVFragment extends Fragment implements ViewPager.OnPageChangeListen
         GridLayoutManager gridManager = new GridLayoutManager(mContext,3);
         mRecylerView.setLayoutManager(gridManager);
         mOnlineVideoAdapter = new OnlineVideoAdapter(mContext,Constant.TV_ALL_URLS,null,Constant.TV_ALL_NAME);
+        mOnlineVideoAdapter.setOnItemClickListener(new OnlineVideoAdapter.ClickListener() {
+            @Override
+            public void onItemClick(int position, View v) {
+
+            }
+
+            @Override
+            public void onItemLongClick(int position, View v) {
+
+            }
+        });
         mRecylerView.setAdapter(mOnlineVideoAdapter);
+
     }
 
     private void initDotsView(View v){
